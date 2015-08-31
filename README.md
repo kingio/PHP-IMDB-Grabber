@@ -2,7 +2,10 @@
 
 [![Travis CI](https://img.shields.io/travis/kingio/PHP-IMDB-Grabber/custom.svg)](https://travis-ci.org/kingio/PHP-IMDB-Grabber)
 
-This PHP library enables you to scrap data from IMDB.com and it's heavily based on [FabianBeiner's PHP-IMDB-Grabber](https://github.com/FabianBeiner/PHP-IMDB-Grabber)
+This PHP library enables you to scrap data from IMDB.com and it's heavily based on 
+[FabianBeiner's PHP-IMDB-Grabber](https://github.com/FabianBeiner/PHP-IMDB-Grabber) 
+(You can also find more info about this package and its license and conditions of usage there)
+
 
 # Install
 
