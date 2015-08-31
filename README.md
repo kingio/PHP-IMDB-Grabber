@@ -9,6 +9,7 @@ This PHP library enables you to scrap data from IMDB.com and it's heavily based 
 ## [7.0.0] - 2015-08-31
 ### Changed
 - psr4 autoload
+
 ### Fixed
 - Fixed writers & directors not being fetched because where hidden with a "View more" link
 
