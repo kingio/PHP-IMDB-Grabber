@@ -1,0 +1,22 @@
+{
+    "name": "jmartin/php-imdb-grabber",
+    "description": "This class enables you to retrieve data from IMDb.com with PHP.",
+    "license": "CC BY-NC-SA 3.0",
+    "authors": [
+        {
+            "name": "Jordi Martin",
+            "email": "jordimartin@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "4.5.*"
+    },
+    "require": {
+        "ext-curl": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "IMDB\\": "src/"
+        }
+    }
+}
