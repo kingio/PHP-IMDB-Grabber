@@ -8,39 +8,41 @@ class DataTest extends PHPUnit_Framework_TestCase
     {
         //create the url
         $imdb_url = 'http://www.imdb.com/title/tt' . $imdbId . '/';
+
         //get essentian information
-        $oIMDB = new \IMDB\IMDB($imdb_url);
-        if ($oIMDB->isReady) {
-            $this->assertEquals($expected['type'],$oIMDB->getType(),"Check Type");
-            $this->assertEquals($expected['released'],$oIMDB->isReleased(),"Check IsReleased");
-            $this->assertEquals($expected['seasons'],$oIMDB->getSeasons(),"Check Seasons");
-            $this->assertEquals($expected['genre'],$oIMDB->getGenre(),"Check Genre");
-            $this->assertEquals($expected['runtime'],$oIMDB->getRuntime(),"Check Runtime");
-            $this->assertEquals($expected['year'],$oIMDB->getYear(),"Check Year");
-            $this->assertEquals($expected['title'],$oIMDB->getTitle(),"Check Title");
-            $this->assertEquals($expected['country'],$oIMDB->getCountry(),"Check Country");
-            $this->assertEquals($expected['release_date'],$oIMDB->getReleaseDate(),"Check ReleaseDate");
-            $this->assertEquals($expected['director'],$oIMDB->getDirector(),"Check Director");
-            $this->assertEquals($expected['writer'],$oIMDB->getWriter(),"Check Writer");
-            $this->assertEquals($expected['company'],$oIMDB->getCompany(),"Check Company");
-            $this->assertEquals($expected['description'],$oIMDB->getDescription(),"Check Description");
+        $IMDB = new \IMDB\IMDB($imdb_url);
+
+        if ($IMDB->isReady) {
+            $this->assertEquals($expected['type'], $IMDB->getType(), "Check Type");
+            $this->assertEquals($expected['released'], $IMDB->isReleased(), "Check IsReleased");
+            $this->assertEquals($expected['seasons'], $IMDB->getSeasons(), "Check Seasons");
+            $this->assertEquals($expected['genre'], $IMDB->getGenre(), "Check Genre");
+            $this->assertEquals($expected['runtime'], $IMDB->getRuntime(), "Check Runtime");
+            $this->assertEquals($expected['year'], $IMDB->getYear(), "Check Year");
+            $this->assertEquals($expected['title'], $IMDB->getTitle(), "Check Title");
+            $this->assertEquals($expected['country'], $IMDB->getCountry(), "Check Country");
+            $this->assertEquals($expected['release_date'], $IMDB->getReleaseDate(), "Check ReleaseDate");
+            $this->assertEquals($expected['director'], $IMDB->getDirector(), "Check Director");
+            $this->assertEquals($expected['writer'], $IMDB->getWriter(), "Check Writer");
+            $this->assertEquals($expected['company'], $IMDB->getCompany(), "Check Company");
+            $this->assertEquals($expected['description'], $IMDB->getDescription(), "Check Description");
             //only test one
 
             if(is_array($expected['akas']) && sizeof($expected['akas']) > 0){
-                $this->assertEquals($expected['akas'][0],$oIMDB->getAkas()[0],"Check Akas");
+                $this->assertEquals($expected['akas'][0], $IMDB->getAkas()[0], "Check Akas");
             } else {
-                $this->assertEquals($expected['akas'],$oIMDB->getAkas(),"Check Akas as empty array");
+                $this->assertEquals($expected['akas'], $IMDB->getAkas(), "Check Akas as empty array");
             }
 
             if(is_array($expected['cast']) && sizeof($expected['cast']) > 0){
-                $this->assertEquals($expected['cast'][0],$oIMDB->getCastAndCharacter()[0],"Check Cast");
+                $this->assertEquals($expected['cast'][0], $IMDB->getCastAndCharacter()[0], "Check Cast");
             } else {
-                $this->assertEquals($expected['cast'],$oIMDB->getCastAndCharacter(),"Check Cast as empty");
+                $this->assertEquals($expected['cast'], $IMDB->getCastAndCharacter(), "Check Cast as empty");
             }
-            $this->assertEquals($expected['languages'],$oIMDB->getLanguages(),"Check Languages");
 
-        }
-        else {
+            $this->assertEquals($expected['languages'], $IMDB->getLanguages(), "Check Languages");
+
+        } else {
             throw new Exception("Error Processing Request", 1);
         }
 
