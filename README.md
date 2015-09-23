@@ -26,6 +26,10 @@ Or:
 
 # Changelog
 
+## [7.0.1] - 2015-09-23
+### Fixed
+- Fixed the possibility of getting an undefined index 
+
 ## [7.0.0] - 2015-08-31
 ### Changed
 - psr4 autoload
