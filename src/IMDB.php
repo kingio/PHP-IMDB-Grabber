@@ -367,16 +367,15 @@ class IMDB
             
             return true;
         }
-        return false;
     }
     
     /**
      * Run a cURL request.
      *
-     * @param str $strUrl             URL to run curl on.
-     * @param bol $bolOverWriteSource Overwrite $this->_strSource?
+     * @param string $strUrl             URL to run curl on.
+     * @param boolean $bolOverWriteSource Overwrite $this->_strSource?
      *
-     * @return arr Array with cURL informations.
+     * @return array Array with cURL informations.
      */
     private function doCurl($strUrl, $bolOverWriteSource = true)
     {
@@ -450,6 +449,7 @@ class IMDB
         if ($this->isReady) {
             $arrReturn = array();
             $fCache = $this->_strRoot . '/cache/' . md5($this->_strId) . '.akas';
+
             if (file_exists($fCache)) {
                 $bolUseCache = true;
                 $intChanged  = filemtime($fCache);
@@ -492,13 +492,10 @@ class IMDB
                 }
             }
         }
+
         return $this->strNotFound;
     }
-    
-    
-    
-    
-    
+
     /**
      * Returns the cast and character as URL .
      *
@@ -506,9 +503,12 @@ class IMDB
      */
     public function getCastAndCharacter($intLimit = 20)
     {
+        $arrReturn = $this->arrNotFound;
+
         if ($this->isReady) {
             $arrReturned = $this->matchRegex($this->_strSource, IMDB::IMDB_CAST);
             $arrChar     = $this->matchRegex($this->_strSource, IMDB::IMDB_CHAR);
+
             if (count($arrReturned[2])) {
                 foreach ($arrReturned[2] as $i => $strName) {
                     if ($i >= $intLimit) {
@@ -539,10 +539,10 @@ class IMDB
                         }
                     }
                 }
-                return $arrReturn;
             }
         }
-        return $this->arrNotFound;
+
+        return $arrReturn;
     }
     
     
@@ -554,6 +554,8 @@ class IMDB
     
     public function getCompany()
     {
+        $arrReturn = $this->arrNotFound;
+
         if ($this->isReady) {
 
             $strContainer = $this->matchRegex($this->_strSource, IMDB::IMDB_COMPANY, 1);
@@ -567,12 +569,10 @@ class IMDB
                         'name' => trim($company)
                     );
                 }
-
-                return $arrReturn;
             }
         }
 
-        return $this->arrNotFound;
+        return $arrReturn;
     }
     
     /**
@@ -582,16 +582,17 @@ class IMDB
      */
     public function getCountry()
     {
+        $arrReturn = $this->arrNotFound;
+
         if ($this->isReady) {
             $arrReturned = $this->matchRegex($this->_strSource, IMDB::IMDB_COUNTRY);
             if (count($arrReturned[2])) {
                 foreach ($arrReturned[2] as $strName) {
                     $arrReturn[] = trim($strName);
                 }
-                return $arrReturn;
             }
         }
-        return $this->arrNotFound;
+        return $arrReturn;
     }
     
     
@@ -606,12 +607,15 @@ class IMDB
         if ($this->isReady) {
             if ($strReturn = $this->matchRegex($this->_strSource, IMDB::IMDB_DESCRIPTION, 1)) {
                 $strReturn = trim($strReturn);
+
                 if(empty($strReturn)){
                     return $this->strNotFound;
                 }
+
                 return $strReturn;
             }
         }
+
         return $this->strNotFound;
     }
     
@@ -647,18 +651,21 @@ class IMDB
      */
     public function getGenre()
     {
+        $arrReturn = $this->arrNotFound;
+
         if ($this->isReady) {
             $arrReturned = $this->matchRegex($this->_strSource, IMDB::IMDB_GENRE);
+
             if (count($arrReturned[1])) {
                 foreach ($arrReturned[1] as $strName) {
                     if ($strName != "") {
                         $arrReturn[] = trim($strName);
                     }
                 }
-                return array_values(array_unique($arrReturn));
             }
         }
-        return $this->arrNotFound;
+
+        return array_values(array_unique($arrReturn));
     }
     
     
@@ -669,6 +676,8 @@ class IMDB
      */
     public function getLanguages()
     {
+        $arrReturn = $this->arrNotFound;
+
         if ($this->isReady) {
             $arrReturned = $this->matchRegex($this->_strSource, IMDB::IMDB_LANGUAGES);
           
@@ -676,10 +685,10 @@ class IMDB
                 foreach ($arrReturned[3] as $strName) {
                     $arrReturn[] = trim($strName);
                 }
-                return $arrReturn;
             }
         }
-        return $this->arrNotFound;
+
+        return $arrReturn;
     }
     
     /**
@@ -763,9 +772,8 @@ class IMDB
             }
 
         }
+
         throw new IMDBException("Can't get title", 1);
-        
-        return $this->strNotFound;  //TODO EXCEPTION
     }
 
 
@@ -779,6 +787,7 @@ class IMDB
         if ($this->isReady) {
             return $this->_strUrl;
         }
+
         return $this->strNotFound;
     }
     
