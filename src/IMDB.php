@@ -94,7 +94,7 @@ class IMDB
     private $_strRoot = '';
     // Current version.
     const IMDB_VERSION = '6.0.1';
-    
+
     /**
      * IMDB constructor.
      *
@@ -128,7 +128,7 @@ class IMDB
         $this->_intCache = (int) $intCache;
         IMDB::fetchUrl($strSearch);
     }
-    
+
     /**
      * Regular expressions helper function.
      *
@@ -300,7 +300,7 @@ class IMDB
             if (IMDB::IMDB_DEBUG) {
                 echo '<b>- Run cURL on:</b> ' . $this->_strUrl . '<br>';
             }
-            
+
             $arrInfo   = $this->doCurl($this->_strUrl);
             $strOutput = $arrInfo['contents'];
             
@@ -720,8 +720,6 @@ class IMDB
         }
         return 0;
     }
-    
-
 
     /**
      * Returns the seasons.
@@ -748,10 +746,6 @@ class IMDB
         }
         return 0;
     }
-    
-    
-    
-
 
     /**
      * @param bool $bForceLocal Try to return the original name of the movie.
@@ -889,15 +883,14 @@ class IMDB
                     $strReturn = str_replace("&nbsp;-&nbsp;", '', $strReturn);
                     $strReturn = str_replace("&nbsp;", '', $strReturn);
                     $type = trim($strReturn, " ");
-                    if (empty($type)){
-                        return "movie";
-                    }
-                    else {
-                        return $type;
-                    }
+
+                    return (empty($type)) ? "Movie" : $type;
                 }
             }
+
+            throw new IMDBException("Can't get type");
         }
+
         return false;
     }
     
