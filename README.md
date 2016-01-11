@@ -26,6 +26,11 @@ Or:
 
 # Changelog
 
+## [7.0.2] - 2016-01-11
+### Changed
+- Throw an exception when media type is not found 
+- Updated tests
+
 ## [7.0.1] - 2015-09-23
 ### Fixed
 - Fixed the possibility of getting an undefined index 
