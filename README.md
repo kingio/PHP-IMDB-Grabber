@@ -26,6 +26,10 @@ Or:
 
 # Changelog
 
+## [7.0.3] - 2016-01-12
+### Changed
+- Improved title cleanup
+
 ## [7.0.2] - 2016-01-11
 ### Changed
 - Throw an exception when media type is not found 
