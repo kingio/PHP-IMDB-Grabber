@@ -172,9 +172,11 @@ class IMDB
             'Add summary &raquo;',
             'Add synopsis &raquo;',
             'See more &raquo;',
-            'See why on IMDbPro.'
+            'See why on IMDbPro.',
+            ' - IMDb'
         );
         $aReplace = array(
+            '',
             '',
             '',
             '',
