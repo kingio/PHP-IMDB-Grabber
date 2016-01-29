@@ -34,7 +34,7 @@ class IMDB
     const IMDB_COMPANY      = '~Production Co:</h4>(.*)</div>~Ui';
     const IMDB_COMPANY_NAME = '~href="/company/co(\d+)(?:\?.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
 
-    const IMDB_DESCRIPTION = '~<p itemprop="description">(.*)(?:<a|<\/p>)~Ui';
+    const IMDB_DESCRIPTION = '~<div class="summary_text" itemprop="description">(.*)(?:<a|<\/div>)~Ui';
     const IMDB_DIRECTOR = '~(?:Director|Directors):</h4>(.*)</div>~Ui';
     const IMDB_DIRECTOR_FULLCREDITS = '~Directed by(.*)<h4~Uis';
 
@@ -44,7 +44,7 @@ class IMDB
     const IMDB_LANGUAGES = '~<a href="\/language\/(\w+)(\"|\?).*\n?.*>(\w+)<\/a~Ui';
     const IMDB_LOCATION = '~href="\/search\/title\?locations=(.*)">(.*)<\/a>~Ui';
 
-    const IMDB_NAME = '~href="/name/nm(\d+)/(?:.*)"[ ]?itemprop=\'(?:\w+)\'><span class="itemprop" itemprop="name">(.*)</span>~Ui';
+    const IMDB_NAME = '~href="/name/nm(\d+?)[/]?(?:.*)"[ ]?itemprop=\'(?:\w+)\'><span class="itemprop" itemprop="name">(.*)</span>~Ui';
     const IMDB_FULLCREDITS_NAME = '~href=\"\/name\/nm(\d+)\/.*\"[^>]*>\s+(.*)~';
 
     const IMDB_PLOT = '~Storyline</h2>\s+<div class="inline canwrap" itemprop="description">\s+<p>(.*)(?:<em|<\/p>|<\/div>)~Ui';
@@ -69,7 +69,7 @@ class IMDB
     const IMDB_WRITER = '~(?:Writer|Writers):</h4>(.*)</div>~Ui';
     const IMDB_WRITER_FULLCREDITS = '~Series Writing Credits(.*)<h4~Uis';
 
-    const IMDB_TYPE = '~<div class="infobar">(.*)<~Ui';
+    const IMDB_TYPE = '~property=\'og:type\' content="video.(.*)"~Ui';
     const IMDB_IS_RELEASED = '~<div class="star-box giga-star">(.*)</div>~Ui';
     
     /**
@@ -94,6 +94,11 @@ class IMDB
     private $_strRoot = '';
     // Current version.
     const IMDB_VERSION = '6.0.1';
+    
+    private $typeMap = [
+		'tv_show' => "TV Series",
+		'movie' => "Movie"
+	];
 
     /**
      * IMDB constructor.
@@ -886,7 +891,7 @@ class IMDB
                     $strReturn = str_replace("&nbsp;", '', $strReturn);
                     $type = trim($strReturn, " ");
 
-                    return (empty($type)) ? "Movie" : $type;
+                    return (empty($type)) ? "Movie" : $this->typeMap[$type];
                 }
             }
 
