@@ -25,7 +25,7 @@ class IMDB
     const IMDB_SEARCHFOR = 'all';
     
     // Regular expressions, I would not touch them. :)
-    const IMDB_AKA = '~<h5>Also Known As:<\/h5>(?:\s*)<div class="info-content">(?:\s*)"(.*)"~Ui';
+    const IMDB_AKA = '~<h4 class="inline">Also Known As:<\/h4>(?:\s*)(.*)<span~Ui';
     const IMDB_CAST = '~itemprop="actor"(?:.*)><a href="/name/nm(\d+)/(?:.*)"[ ]?itemprop=\'url\'> <span class="itemprop" itemprop="name">(.*)</span>~Ui';
     const IMDB_CHAR = '~<td class="character">\s+<div>(.*)</div>\s+</td~Ui';
     const IMDB_COUNTRY = '~href="/country/(\w+)\?(?:.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
