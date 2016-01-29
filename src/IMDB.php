@@ -613,7 +613,7 @@ class IMDB
     {
         if ($this->isReady) {
             if ($strReturn = $this->matchRegex($this->_strSource, IMDB::IMDB_DESCRIPTION, 1)) {
-                $strReturn = trim($strReturn);
+                $strReturn = html_entity_decode(trim($strReturn));
 
                 if(empty($strReturn)){
                     return $this->strNotFound;
