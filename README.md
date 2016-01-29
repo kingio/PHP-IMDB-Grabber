@@ -26,6 +26,10 @@ Or:
 
 # Changelog
 
+## [7.1.0] - 2016-01-29
+### Fixed
+Updated to support IMDB's new UI
+
 ## [7.0.3] - 2016-01-12
 ### Changed
 - Improved title cleanup
