@@ -9,7 +9,7 @@ return array (
         ),
     'runtime' => '200',
     'year' => 1996,
-    'title' => 'Fantaghirò 5',
+    'title' => 'The Cave of the Golden Rose 5',
     'country' =>
         array (
             0 => 'Italy',
