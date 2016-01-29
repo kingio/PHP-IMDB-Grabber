@@ -1,7 +1,7 @@
 <?php
 
 return array (
-    'type' => 'TV Movie',
+    'type' => 'Movie',
     'released' => true,
     'seasons' => 0,
     'genre' =>
