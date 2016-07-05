@@ -1,46 +1,105 @@
 <?php
 class DataTest extends PHPUnit_Framework_TestCase
 {
+    protected $requiredFields = [
+        'type' => 'string',
+        'released' => 'boolean',
+        'year' => 'int',
+        'title' => 'string',
+        'release_date' => 'string',
+    ];
+
+    protected $optionalFields = [
+        'genre' => 'array',
+        'seasons' => 'int',
+        'country' => 'array',
+        'director' => 'array',
+        'cast' => 'array',
+        'description' => 'string',
+        'company' => 'array',
+        'writer' => 'array',
+        'runtime' => 'string',
+        'akas' => 'array',
+        'languages' => 'array',
+    ];
+
+    protected $arrayFields = [
+        'genre' => [
+            "type" => "singleValue",
+            "value" => "string"
+        ],
+        'country' => [
+            "type" => "singleValue",
+            "value" => "string"
+        ],
+        'director' => [
+            "type" => "singleValue",
+            "value" => "string"
+        ],
+        'cast' => [
+            "type" => "singleValue",
+            "value" => "string"
+        ],
+        'company' => [
+            "type" => "singleValue",
+            "value" => "string"
+        ],
+        'writer' => [
+            "type" => "singleValue",
+            "value" => "string"
+        ],
+        'akas' => [
+            "type" => "singleValue",
+            "value" => "string"
+        ],
+        'languages' => [
+            "type" => "singleValue",
+            "value" => "string"
+        ],
+    ];
+
+    protected $validators = [];
+
+    /**
+     * DataTest constructor.
+     */
+    public function __construct($name = null, array $data = array(), $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+
+        require_once "OutputValidator.php";
+
+        $allFields = array_merge($this->requiredFields, $this->optionalFields);
+
+        $this->validators['basic'] = new OutputValidator($this->requiredFields, $this->optionalFields, $this->arrayFields);
+        $this->validators['full-serie'] = new OutputValidator($allFields, [], $this->arrayFields);
+
+        unset($allFields['seasons']);
+
+        $this->validators['full-movie'] = new OutputValidator($allFields, [], $this->arrayFields);
+    }
+
+
     /**
      * @dataProvider imdbProvider
      */
-    public function testMediaExtraction($imdbId, $expected)
+    public function testMediaExtraction($imdbId, OutputValidator $validator)
     {
         //create the url
         $imdb_url = 'http://www.imdb.com/title/tt' . $imdbId . '/';
 
-        //get essentian information
+        //get essential information
         $IMDB = new \IMDB\IMDB($imdb_url);
 
         if ($IMDB->isReady) {
-            $this->assertEquals($expected['type'], $IMDB->getType(), "Check Type");
-            $this->assertEquals($expected['released'], $IMDB->isReleased(), "Check IsReleased");
-            $this->assertEquals($expected['seasons'], $IMDB->getSeasons(), "Check Seasons");
-            $this->assertEquals($expected['genre'], $IMDB->getGenre(), "Check Genre");
-            $this->assertEquals($expected['runtime'], $IMDB->getRuntime(), "Check Runtime");
-            $this->assertEquals($expected['year'], $IMDB->getYear(), "Check Year");
-            $this->assertEquals($expected['title'], $IMDB->getTitle(), "Check Title");
-            $this->assertEquals($expected['country'], $IMDB->getCountry(), "Check Country");
-            $this->assertEquals($expected['release_date'], $IMDB->getReleaseDate(), "Check ReleaseDate");
-            $this->assertEquals($expected['director'], $IMDB->getDirector(), "Check Director");
-            $this->assertEquals($expected['writer'], $IMDB->getWriter(), "Check Writer");
-            $this->assertEquals($expected['company'], $IMDB->getCompany(), "Check Company");
-            $this->assertEquals($expected['description'], $IMDB->getDescription(), "Check Description");
-            //only test one
+            $data = $this->getAll($IMDB);
+            $integral = false;
 
-            if(is_array($expected['akas']) && sizeof($expected['akas']) > 0){
-                $this->assertEquals($expected['akas'][0], $IMDB->getAkas()[0], "Check Akas");
-            } else {
-                $this->assertEquals($expected['akas'], $IMDB->getAkas(), "Check Akas as empty array");
-            }
+            try {
+                $integral = $validator->checkIntegrity($data);
+            } catch (\Exception $e) {}
 
-            if(is_array($expected['cast']) && sizeof($expected['cast']) > 0){
-                $this->assertEquals($expected['cast'][0], $IMDB->getCastAndCharacter()[0], "Check Cast");
-            } else {
-                $this->assertEquals($expected['cast'], $IMDB->getCastAndCharacter(), "Check Cast as empty");
-            }
-
-            $this->assertEquals($expected['languages'], $IMDB->getLanguages(), "Check Languages");
+            $this->assertTrue($integral);
 
         } else {
             throw new Exception("Error Processing Request", 1);
@@ -48,27 +107,58 @@ class DataTest extends PHPUnit_Framework_TestCase
 
     }
 
+    /**
+     * @param $IMDB \IMDB\IMDB
+     * @return array
+     */
+    protected function getAll($IMDB) {
+        return [
+            'type' => $IMDB->getType(),
+            'released' => $IMDB->isReleased(),
+            'seasons' => $IMDB->getSeasons(),
+            'genre' => $IMDB->getGenre(),
+            'runtime' => $IMDB->getRuntime(),
+            'year' => $IMDB->getYear(),
+            'title' => $IMDB->getTitle(),
+            'country' => $IMDB->getCountry(),
+            'release_date' => $IMDB->getReleaseDate(),
+            'director' => $IMDB->getDirector(),
+            'writer' => $IMDB->getWriter(),
+            'company' => $IMDB->getCompany(),
+            'description' => $IMDB->getDescription(),
+            'akas' => $IMDB->getAkas(),
+            'cast' => $IMDB->getCastAndCharacter(),
+            'languages' => $IMDB->getLanguages(),
+        ];
+    }
+
     public function imdbProvider()
     {
-        $expectedRubicon = require_once 'data/rubicon.php';
-        $expectedPunch = require_once 'data/punch.php';
-        $expectedInterstellar = require_once 'data/interstellar.php';
-        $expectedIslaMinima = require_once 'data/isla-minima.php';
-        $expectedJohnnyRingo = require_once 'data/johnny-ringo.php';
-        $expectedFantaghiro5 = require_once 'data/fantaghiro5.php';
-        $expectedTheMissing = require_once 'data/the-missing.php';
-        $expectedBreakingBad = require_once 'data/breaking-bad.php';
+        
+        return [
+            // Fantaghiro5
+            ["tt0140039", $this->validators['basic']],
 
-        return array(
-            array("tt1389371", $expectedRubicon),
-            array("tt4329922", $expectedPunch),
-            array("tt0816692", $expectedInterstellar),
-            array("tt3253930", $expectedIslaMinima),
-            array("tt0060589", $expectedJohnnyRingo),
-            array("tt0140039", $expectedFantaghiro5),
-            array("tt3877200", $expectedTheMissing),
-            array("tt0903747", $expectedBreakingBad),
-        );
+            // Rubicon
+            ["tt1389371", $this->validators['basic']],
+
+            // Punch
+            ["tt4329922", $this->validators['basic']],
+
+            // Johnny Ringo
+            ["tt0060589", $this->validators['basic']],
+
+            // Interstellar
+            ["tt0816692", $this->validators['full-movie']],
+
+            // Isla Mínima
+            ["tt3253930", $this->validators['full-movie']],
+
+            // The Missing
+            ["tt3877200", $this->validators['full-serie']],
+
+            // BreakingBad
+            ["tt0903747", $this->validators['full-serie']],
+        ];
     }
 }
-?>
