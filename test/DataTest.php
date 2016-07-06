@@ -21,6 +21,7 @@ class DataTest extends PHPUnit_Framework_TestCase
         'runtime' => 'string',
         'akas' => 'array',
         'languages' => 'array',
+        'releases' => 'array'
     ];
 
     protected $arrayFields = [
@@ -53,6 +54,10 @@ class DataTest extends PHPUnit_Framework_TestCase
             "value" => "string"
         ],
         'languages' => [
+            "type" => "singleValue",
+            "value" => "string"
+        ],
+        'releases' => [
             "type" => "singleValue",
             "value" => "string"
         ],
@@ -114,14 +119,12 @@ class DataTest extends PHPUnit_Framework_TestCase
     protected function getAll($IMDB) {
         return [
             'type' => $IMDB->getType(),
-            'released' => $IMDB->isReleased(),
             'seasons' => $IMDB->getSeasons(),
             'genre' => $IMDB->getGenre(),
             'runtime' => $IMDB->getRuntime(),
             'year' => $IMDB->getYear(),
             'title' => $IMDB->getTitle(),
             'country' => $IMDB->getCountry(),
-            'release_date' => $IMDB->getReleaseDate(),
             'director' => $IMDB->getDirector(),
             'writer' => $IMDB->getWriter(),
             'company' => $IMDB->getCompany(),
@@ -129,6 +132,9 @@ class DataTest extends PHPUnit_Framework_TestCase
             'akas' => $IMDB->getAkas(),
             'cast' => $IMDB->getCastAndCharacter(),
             'languages' => $IMDB->getLanguages(),
+            'released' => $IMDB->isReleased(),
+            'releases' => $IMDB->getReleases(),
+            'release_date' => $IMDB->getReleaseDate(),
         ];
     }
 

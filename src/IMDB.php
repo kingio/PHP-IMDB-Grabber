@@ -92,6 +92,7 @@ class IMDB
     public $isReady = false;
     // Define root of this script.
     private $_strRoot = '';
+    private $_strReleasesPageContent = null;
     // Current version.
     const IMDB_VERSION = '6.0.1';
     
@@ -149,19 +150,16 @@ class IMDB
 
         preg_match_all($strRegex, $strContent, $arrMatches);
 
-//        if ($strRegex == self::IMDB_WRITER_FULLCREDITS) {
-//            print_r($arrMatches);
-//            die();
-//        }
+        if ($arrMatches === false) return false;
 
-        if ($arrMatches === false)
-            return false;
         if ($intIndex != NULL && is_int($intIndex)) {
             if ($arrMatches[$intIndex]) {
                 return $arrMatches[$intIndex][0];
             }
+
             return false;
         }
+
         return $arrMatches;
     }
     
@@ -199,12 +197,13 @@ class IMDB
         return trim($sInput);
     }
 
-    
+
     /**
      * Returns a shortened text.
      *
      * @param string  $strText   The text to shorten
      * @param integer $intLength The new length of the text
+     * @return string
      */
     public function getShortText($strText, $intLength = 100)
     {
@@ -218,7 +217,6 @@ class IMDB
      * Fetch data from the given url.
      *
      * @param string  $strSearch The movie name / IMDb url
-     * @param string  $strSave   The path to the file
      * @return boolean
      */
     private function fetchUrl($strSearch)
@@ -445,7 +443,104 @@ class IMDB
         }
         return $this->strNotFound;
     }
-    
+
+    protected function getReleasesInfoPage() {
+        if ($this->_strReleasesPageContent) return $this->_strReleasesPageContent;
+
+        if ($this->isReady) {
+            $page = sprintf('http://www.imdb.com/title/tt%s/releaseinfo', $this->_strId);
+            $this->_strReleasesPageContent = $this->doCurl($page, false);
+
+            return $this->_strReleasesPageContent;
+        }
+
+        return $this->strNotFound;
+    }
+
+    public function getReleases() {
+        if ($this->hasCachedReleases()) return $this->getCachedReleases();
+
+        $arrInfo = $this->getReleasesInfoPage();
+        $releases = [];
+
+        $releasesResults = $this->matchRegex($arrInfo['contents'], "~<td><a href=\"(?:.*?)\"(?:\n?.*?)>(.*?)<\/a><\/td>(?:\n?.*?)<td(?:\n?.*?)>(.*?)<a href=\"(?:.*?)\"(?:\n?.*?)>(.*?)<\/a><\/td>(?:\n?.*?)<td>(?:\s*.*?)(\n?.*?)<\/td>~", 0);
+
+        $countries = $releasesResults[1];
+        $dayMonths = $releasesResults[2];
+        $years = $releasesResults[3];
+        $premiers = $releasesResults[4];
+
+        foreach ($years as $key => $year) {
+            $isPremier = (trim($premiers[$key]) == '(premier)');
+
+            if ($isPremier) continue;
+
+            $releases[$countries[$key]] = $dayMonths[$key] . $year;
+        }
+
+        @file_put_contents($this->getCachedReleasesFileName(), serialize($releases));
+
+        return $releases;
+    }
+
+    protected function hasCachedReleases() {
+        $fCache = $this->getCachedReleasesFileName();
+
+        if (file_exists($fCache)) {
+            $intChanged  = filemtime($fCache);
+            $intNow      = time();
+            $intDiff     = round(abs($intNow - $intChanged) / 60);
+
+            return ($this->_intCache > $intDiff);
+        }
+
+        return false;
+    }
+
+    protected function getCachedReleasesFileName() {
+        return $this->_strRoot . '/cache/' . md5($this->_strId) . '.releases';
+    }
+
+    protected function getCachedReleases() {
+        $fCache = $this->getCachedReleasesFileName();
+
+        if (IMDB::IMDB_DEBUG) {
+            echo '<b>- Using cache for Releases from ' . $fCache . '</b><br>';
+        }
+
+        $arrReturn = @file_get_contents($fCache);
+        return unserialize($arrReturn);
+    }
+
+    protected function hasCachedAkas() {
+        $fCache = $this->getCachedAkasFileName();
+
+        if (file_exists($fCache)) {
+            $intChanged  = filemtime($fCache);
+            $intNow      = time();
+            $intDiff     = round(abs($intNow - $intChanged) / 60);
+
+            return ($this->_intCache > $intDiff);
+        }
+
+        return false;
+    }
+
+    protected function getCachedAkasFileName() {
+        return $this->_strRoot . '/cache/' . md5($this->_strId) . '.akas';
+    }
+
+    protected function getCachedAkas() {
+        $fCache = $this->getCachedAkasFileName();
+
+        if (IMDB::IMDB_DEBUG) {
+            echo '<b>- Using cache for Akas from ' . $fCache . '</b><br>';
+        }
+
+        $arrReturn = @file_get_contents($fCache);
+        return unserialize($arrReturn);
+    }
+
     /**
      * Returns all local names
      *
@@ -453,60 +548,44 @@ class IMDB
      */
     public function getAkas()
     {
-        if ($this->isReady) {
-            $arrReturn = array();
-            $fCache = $this->_strRoot . '/cache/' . md5($this->_strId) . '.akas';
+        if ($this->hasCachedAkas()) return $this->getCachedAkas();
 
-            if (file_exists($fCache)) {
-                $bolUseCache = true;
-                $intChanged  = filemtime($fCache);
-                $intNow      = time();
-                $intDiff     = round(abs($intNow - $intChanged) / 60);
-                if ($intDiff > $this->_intCache) {
-                    $bolUseCache = false;
-                }
-            } else {
-                $bolUseCache = false;
-            }
-            
-            if ($bolUseCache) {
-                if (IMDB::IMDB_DEBUG) {
-                    echo '<b>- Using cache for Akas from ' . $fCache . '</b><br>';
-                }
-                $arrReturn = @file_get_contents($fCache);
-                return unserialize($arrReturn);
-            } else {
-                $fullAkas = sprintf('http://www.imdb.com/title/tt%s/releaseinfo', $this->_strId);
-                $arrInfo  = $this->doCurl($fullAkas, false);
-                if (!$arrInfo) {
-                    return $this->strNotFound;
-                }
-                $arrReturned = $this->matchRegex($arrInfo['contents'], "~<td>(.*?)<\/td>\s+<td>(.*?)<\/td>~", 0);
-                if (isset($arrReturned[1]) && isset($arrReturned[2])) {
-                    
-                    foreach ($arrReturned[1] as $i => $strName) {
-                        
-                        if (strpos($strName, '(') === false) {
-                            $arrReturn[] = array(
-                                'title' => trim($arrReturned[2][$i]),
-                                'country' => trim($strName)
-                            );
-                        }
-                    }
-                    
-                    @file_put_contents($fCache, serialize($arrReturn));
-                    return $arrReturn;
-                }
-            }
+        $arrInfo = $this->getReleasesInfoPage();
+        $fCache = $this->getCachedAkasFileName();
+        $results  = [];
+        $arrReturn = [];
+
+        if (! $arrInfo) {
+            return $this->strNotFound;
         }
 
-        return $this->strNotFound;
+        $arrReturned = $this->matchRegex($arrInfo['contents'], "~<td>(.*?)<\/td>\s+<td>(.*?)<\/td>~", 0);
+
+        if (isset($arrReturned[1]) && isset($arrReturned[2])) {
+
+            foreach ($arrReturned[1] as $i => $strName) {
+
+                if (strpos($strName, '(') === false) {
+                    $arrReturn[] = array(
+                        'title' => trim($arrReturned[2][$i]),
+                        'country' => trim($strName)
+                    );
+                }
+            }
+
+            @file_put_contents($fCache, serialize($arrReturn));
+            $results['aka'] = $arrReturn;
+        }
+
+        return $results;
     }
 
     /**
      * Returns the cast and character as URL .
      *
      * @return array The movie cast and character as URL (default limited to 20).
+     * @param int $intLimit
+     * @return array
      */
     public function getCastAndCharacter($intLimit = 20)
     {
@@ -707,7 +786,7 @@ class IMDB
     {
         if ($this->isReady) {
             if ($strReturn = $this->matchRegex($this->_strSource, IMDB::IMDB_RELEASE_DATE, 1)) {
-                return str_replace('(', ' (', trim($strReturn));
+                return trim($strReturn);
             }
         }
         return $this->strNotFound;
@@ -755,9 +834,9 @@ class IMDB
     }
 
     /**
-     * @param bool $bForceLocal Try to return the original name of the movie.
      *
      * @return string The title of the movie or $sNotFound.
+     * @throws IMDBException
      */
     public function getTitle() {
          if ($this->isReady) {
@@ -875,11 +954,11 @@ class IMDB
     }
 
 
-    
     /**
      * Returns the type of the imdb media
      *
-     * @return string Type of the imdb media
+     * @return bool|mixed|string Type of the imdb media
+     * @throws IMDBException
      */
     public function getType()
     {
