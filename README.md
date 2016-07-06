@@ -26,6 +26,10 @@ Or:
 
 # Changelog
 
+## [7.2.1] - 2016-07-06
+### Added
+Improved release premiere checker (premieres are ignored)
+
 ## [7.2.0] - 2016-07-06
 ### Added
 Get releases data
