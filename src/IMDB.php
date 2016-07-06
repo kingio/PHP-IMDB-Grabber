@@ -471,8 +471,8 @@ class IMDB
         $premiers = $releasesResults[4];
 
         foreach ($years as $key => $year) {
-            $isPremier = (strpos(trim($premiers[$key]), 'premiere') !== false);
-            
+            $isPremier = (trim($premiers[$key]) != '');
+
             if ($isPremier) continue;
 
             $releases[$countries[$key]] = $dayMonths[$key] . $year;
