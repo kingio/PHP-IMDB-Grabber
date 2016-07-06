@@ -26,6 +26,10 @@ Or:
 
 # Changelog
 
+## [7.2.0] - 2016-07-06
+### Added
+Get releases data
+
 ## [7.1.0] - 2016-01-29
 ### Fixed
 Updated to support IMDB's new UI
