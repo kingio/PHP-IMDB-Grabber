@@ -471,7 +471,7 @@ class IMDB
         $premiers = $releasesResults[4];
 
         foreach ($years as $key => $year) {
-            $isPremier = (trim($premiers[$key]) == '(premier)');
+            $isPremier = (trim($premiers[$key]) != '');
 
             if ($isPremier) continue;
 
