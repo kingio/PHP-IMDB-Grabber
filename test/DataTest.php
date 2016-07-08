@@ -117,9 +117,9 @@ class DataTest extends PHPUnit_Framework_TestCase
             }
 
             $integral = false;
-            $integral = $validator->debug()->check($data);
 
             try {
+                $integral = $validator->check($data);
             } catch (\Exception $e) {}
 
             $this->assertTrue($integral);
