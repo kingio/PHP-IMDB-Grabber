@@ -3,7 +3,8 @@
     "description": "This class enables you to retrieve data from IMDb.com with PHP.",
     "license": "MIT",
     "require-dev": {
-        "phpunit/phpunit": "4.5.*"
+        "phpunit/phpunit": "4.5.*",
+        "mascame/katina": "^2.0"
     },
     "require": {
         "ext-curl": "*"

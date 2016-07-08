@@ -2,93 +2,101 @@
 class DataTest extends PHPUnit_Framework_TestCase
 {
     protected $requiredFields = [
-        'type' => 'string',
-        'released' => 'boolean',
-        'year' => 'int',
-        'title' => 'string',
-        'release_date' => 'string',
+        'type' => ':string',
+        'released' => ':boolean',
+        'year' => ':int',
+        'title' => ':string',
+        'release_date' => ':string',
     ];
 
     protected $optionalFields = [
-        'genre' => 'array',
-        'seasons' => 'int',
-        'country' => 'array',
-        'director' => 'array',
-        'cast' => 'array',
-        'description' => 'string',
-        'company' => 'array',
-        'writer' => 'array',
-        'runtime' => 'string',
-        'akas' => 'array',
-        'languages' => 'array',
-        'releases' => 'array'
-    ];
-
-    protected $arrayFields = [
+        'seasons' => ':int',
+        'description' => ':string',
+        'runtime' => ':string',
         'genre' => [
-            "type" => "singleValue",
-            "value" => "string"
+            ':string'
         ],
         'country' => [
-            "type" => "singleValue",
-            "value" => "string"
+            ':string'
         ],
         'director' => [
-            "type" => "singleValue",
-            "value" => "string"
+            '*' => [
+                'imdb' => ':imdb',
+                'name' => ':string',
+            ]
         ],
         'cast' => [
-            "type" => "singleValue",
-            "value" => "string"
+            '*' => [
+                'name' => ':string',
+                'imdb' => ':imdb',
+                'role' => ':string',
+            ]
         ],
         'company' => [
-            "type" => "singleValue",
-            "value" => "string"
+            '*' => [
+                'imdb' => ':imdb',
+                'name' => ':string',
+            ]
         ],
         'writer' => [
-            "type" => "singleValue",
-            "value" => "string"
+            '*' => [
+                'imdb' => ':imdb',
+                'name' => ':string',
+            ]
         ],
         'akas' => [
-            "type" => "singleValue",
-            "value" => "string"
+            '*' => [
+                'title' => ':string',
+                'country' => ':string',
+            ]
         ],
         'languages' => [
-            "type" => "singleValue",
-            "value" => "string"
+            ':string'
         ],
         'releases' => [
-            "type" => "singleValue",
-            "value" => "string"
-        ],
+            ':string' => ':date'
+        ]
     ];
+    
 
     protected $validators = [];
 
     /**
      * DataTest constructor.
+     * @param null $name
+     * @param array $data
+     * @param string $dataName
      */
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
 
-        require_once "OutputValidator.php";
 
         $allFields = array_merge($this->requiredFields, $this->optionalFields);
 
-        $this->validators['basic'] = new OutputValidator($this->requiredFields, $this->optionalFields, $this->arrayFields);
-        $this->validators['full-serie'] = new OutputValidator($allFields, [], $this->arrayFields);
+        \Mascame\Katina\Rules::setRules([
+           'imdb' => function($value) {
+               preg_match("/([0-9]+){5,9}/", $value, $matches);
+
+               return (sizeof($matches) > 0);
+           }
+        ]);
+
+        $this->validators['basic'] = new \Mascame\Katina\Validator($this->requiredFields, $this->optionalFields);
+        $this->validators['full-serie'] = new \Mascame\Katina\Validator($allFields, []);
 
         unset($allFields['seasons']);
 
-        $this->validators['full-movie'] = new OutputValidator($allFields, [], $this->arrayFields);
+        $this->validators['full-movie'] = new \Mascame\Katina\Validator($allFields, []);
     }
 
 
     /**
-     * @dataProvider imdbProvider
+     * @param $imdbId
+     * @param \Mascame\Katina\Validator $validator
+     * @throws Exception
      */
-    public function testMediaExtraction($imdbId, OutputValidator $validator)
+    public function testMediaExtraction($imdbId, \Mascame\Katina\Validator $validator)
     {
         //create the url
         $imdb_url = 'http://www.imdb.com/title/tt' . $imdbId . '/';
@@ -98,10 +106,18 @@ class DataTest extends PHPUnit_Framework_TestCase
 
         if ($IMDB->isReady) {
             $data = $this->getAll($IMDB);
+
+            // Remove empty optionals
+            foreach ($data as $key => $values) {
+                if (empty($values) && array_key_exists($key, $this->optionalFields)) {
+                    unset($data[$key]);
+                }
+            }
+
             $integral = false;
 
             try {
-                $integral = $validator->checkIntegrity($data);
+                $integral = $validator->check($data);
             } catch (\Exception $e) {}
 
             $this->assertTrue($integral);
