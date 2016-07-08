@@ -574,7 +574,7 @@ class IMDB
             }
 
             @file_put_contents($fCache, serialize($arrReturn));
-            $results['aka'] = $arrReturn;
+            $results = $arrReturn;
         }
 
         return $results;

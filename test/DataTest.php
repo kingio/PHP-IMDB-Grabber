@@ -70,8 +70,7 @@ class DataTest extends PHPUnit_Framework_TestCase
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
-
-
+        
         $allFields = array_merge($this->requiredFields, $this->optionalFields);
 
         \Mascame\Katina\Rules::setRules([
