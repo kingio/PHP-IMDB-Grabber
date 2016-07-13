@@ -795,13 +795,13 @@ class IMDB
     /**
      * Returns the runtime.
      *
-     * @return string The movie runtime.
+     * @return integer The movie runtime.
      */
     public function getRuntime()
     {
         if ($this->isReady) {
             if ($strReturn = $this->matchRegex($this->_strSource, IMDB::IMDB_RUNTIME, 1)) {
-                return trim(intval($strReturn));
+                return intval($strReturn);
             }
         }
         return 0;
