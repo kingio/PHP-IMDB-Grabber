@@ -12,7 +12,7 @@ class DataTest extends PHPUnit_Framework_TestCase
     protected $optionalFields = [
         'seasons' => ':int',
         'description' => ':string',
-        'runtime' => ':string',
+        'runtime' => ':int',
         'genre' => [
             ':string'
         ],
