@@ -25,6 +25,17 @@ Or:
 `./vendor/bin/phpunit test/DataTest.php`
 
 # Changelog
+## [8.1.0] - 2016-07-28
+### Added
+Added getCompanyCredits() and getCastCredits() methods
+
+## [8.0.0] - 2016-07-08
+### Changed
+Changed return value of a getAkas
+
+## [7.2.1] - 2016-07-06
+### Added
+Improved release premiere checker (premieres are ignored)
 
 ## [7.2.1] - 2016-07-06
 ### Added
