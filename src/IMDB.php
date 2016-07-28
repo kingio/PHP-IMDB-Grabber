@@ -2,6 +2,8 @@
 
 namespace IMDB;
 
+use DiDom\Document;
+
 /**
  * Based on Fabian Beiner (mail@fabian-beiner.de)
  *
@@ -71,6 +73,9 @@ class IMDB
 
     const IMDB_TYPE = '~property=\'og:type\' content="video.(.*)"~Ui';
     const IMDB_IS_RELEASED = '~<div class="star-box giga-star">(.*)</div>~Ui';
+    
+    private $distributors = [];
+    private $production = [];
     
     /**
      * These are the regular expressions used to extract the data.
@@ -225,7 +230,7 @@ class IMDB
         $strSearch = trim($strSearch);
         
         // "Remote Debug" - so I can see which version you're running.
-        // To due people complaing about broken functions while they're
+        // To due people complaining about broken functions while they're
         // using old versions. Feel free to remove this.
         if ($strSearch == '##REMOTEDEBUG##') {
             $strSearch = 'http://www.imdb.com/title/tt1022603/';
@@ -681,7 +686,207 @@ class IMDB
         return $arrReturn;
     }
     
-    
+    /**
+     * List of companies that produced the media
+     * @return array
+     */
+    public function getProductors ()
+    {
+        if (empty($this->production)) {
+            $this->getCompanyCredits();
+        }
+
+        return $this->production;
+    }
+
+    /**
+     * List of companies that distributed the media
+     * @return array
+     */
+    public function getDistributors ()
+    {
+        if (empty($this->distributors)) {
+            $this->getCompanyCredits();
+        }
+
+        return $this->distributors;
+    }
+
+    /**
+     * Parses all companies that participated in production & distribution of this media
+     */
+    private function getCompanyCredits ()
+    {
+        $content = Utils::getContent($this->_strUrl . "companycredits");
+
+        // get the uls order
+        $order = [];
+        foreach ($content->find("#company_credits_content h4") as $title) {
+            $order[] = $title->attr("id");
+        }
+
+        $ulList = $content->find("#company_credits_content ul");
+
+        // get the uls order
+        foreach ($order as $pos => $type)
+        {
+            foreach ($ulList[$pos]->find("li") as $company)
+            {
+                $a = $company->find("a")[0];
+
+                preg_match("/\/company\/co([0-9]+)\?/", $a->attr("href"), $matches);
+
+                if (isset($matches[1]) && !empty($matches[1]))
+                {
+
+                    $basicData = [
+                        "id" => $matches[1],
+                        "name" => $a->text(),
+                    ];
+
+                    if ($type == "distributors")
+                    {
+                        // Hispano Foxfilms S.A.E. (2009) (Spain) (theatrical) => (2009) (Spain) (theatrical)
+                        $remainingText = str_replace($basicData["name"], "", $company->text());
+
+                        preg_match("/\(([0-9]{4})\) \(([A-Za-z0-9_.]+)\) \(theatrical\)/", $remainingText, $matches);
+
+                        if (!empty($matches)) {
+                            $basicData["year"] = (int)$matches[1];
+                            $basicData["country"] = $matches[2];
+                            $this->{$type}[] = $basicData;
+                        }
+                    } else {
+                        $this->{$type}[] = $basicData;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Gets the full movie crew divided in departments
+     * @return array
+     */
+    public function getCastCredits ()
+    {
+        $content = new Document($this->getCredits());
+        $titles = $content->find("#fullcredits_content h4");
+        $persons = $content->find(".simpleCreditsTable tbody");
+
+        $crew = [];
+
+        foreach ($titles as $pos => $h4)
+        {
+            $title = trim($h4->text(), " \t\n\r\0\x0B\xC2\xA0");
+
+            switch ($title)
+            {
+                case "Directed by":
+                    $name = "director";
+                    break;
+                case "Music by":
+                    $name = "music";
+                    break;
+                case "Cinematography by":
+                    $name = "cinematography";
+                    break;
+                case "Film Editing by":
+                    $name = "editing";
+                    break;
+                case "Casting By":
+                    $name = "casting";
+                    break;
+                case "Production Design by":
+                    $name = "production_design";
+                    break;
+                case "Art Direction by":
+                    $name = "art_direction";
+                    break;
+                case "Set Decoration by":
+                    $name = "set_decoration";
+                    break;
+                case "Costume Design by":
+                    $name = "costume_design";
+                    break;
+                case "Makeup Department":
+                    $name = "makeup_department";
+                    break;
+                case "Production Management":
+                    $name = "production_management";
+                    break;
+                case "Art Department":
+                    $name = "art_department";
+                    break;
+                case "Sound Department":
+                    $name = "sound_department";
+                    break;
+                case "Special Effects by":
+                    $name = "special_effects";
+                    break;
+                case "Visual Effects by":
+                    $name = "visual_effects";
+                    break;
+                case "Stunts":
+                    $name = "stunts";
+                    break;
+                case "Camera and Electrical Department":
+                    $name = "camera_department";
+                    break;
+                case "Animation Department":
+                    $name = "animation_department";
+                    break;
+                case "Casting Department":
+                    $name = "casting_department";
+                    break;
+                case "Costume and Wardrobe Department":
+                    $name = "wardrobe_department";
+                    break;
+                case "Editorial Department":
+                    $name = "editorial_department";
+                    break;
+                case "Location Management":
+                    $name = "location_management";
+                    break;
+                case "Music Department":
+                    $name = "music_department";
+                    break;
+                case "Transportation Department":
+                    $name = "transportation_department";
+                    break;
+                case "Storyline":
+                    $name = "storyline";
+                    break;
+                case "Photo & Video":
+                    $name = "photo";
+                    break;
+                default:
+                    continue 2;
+                    break;
+            }
+
+            if (!isset($crew[$name])) {
+                $crew[$name] = [];
+            }
+
+            $regex = "/name\/nm(\d+)\/(?:.*)/";
+
+            foreach ($persons[$pos]->find("a") as $person)
+            {
+                preg_match($regex, $person->attr("href"), $matches);
+
+                if (!isset($matches[1]) || empty($matches[1])) {
+                    continue;
+                }
+
+                $crew[$name][] = [
+                    "id" => $matches[1],
+                    "name" => trim($person->text()),
+                ];
+            }
+        }
+        return $crew;
+    }
     
     /**
      * Returns the description.
