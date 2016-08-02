@@ -738,7 +738,6 @@ class IMDB
 
                 if (isset($matches[1]) && !empty($matches[1]))
                 {
-
                     $basicData = [
                         "id" => $matches[1],
                         "name" => $a->text(),
@@ -749,7 +748,7 @@ class IMDB
                         // Hispano Foxfilms S.A.E. (2009) (Spain) (theatrical) => (2009) (Spain) (theatrical)
                         $remainingText = str_replace($basicData["name"], "", $company->text());
 
-                        preg_match("/\(([0-9]{4})\) \(([A-Za-z0-9_.]+)\) \(theatrical\)/", $remainingText, $matches);
+                        preg_match("/\(([0-9]{4})\) \(([A-Za-z0-9_.]+)\) \((?:theatrical|TV)\)/", $remainingText, $matches);
 
                         if (!empty($matches)) {
                             $basicData["year"] = (int)$matches[1];
