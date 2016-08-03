@@ -25,6 +25,11 @@ Or:
 `./vendor/bin/phpunit test/DataTest.php`
 
 # Changelog
+
+## [8.3.0] - 2016-08-03
+### Added
+Added getAgeRating() method
+
 ## [8.2.0] - 2016-08-02
 ### Added
 Get distributors for TV series
