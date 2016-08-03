@@ -97,6 +97,7 @@ class IMDB
     public $isReady = false;
     // Define root of this script.
     private $_strRoot = '';
+    private $dom = null;
     private $_strReleasesPageContent = null;
     // Current version.
     const IMDB_VERSION = '6.0.1';
@@ -138,6 +139,8 @@ class IMDB
         // Set global cache and fetch the data.
         $this->_intCache = (int) $intCache;
         IMDB::fetchUrl($strSearch);
+        
+        $this->dom = new Document($this->_strSource);
     }
 
     /**
@@ -433,6 +436,59 @@ class IMDB
         return $arrInfo;
     }
     
+     /**
+     * Gets age rating
+     * @return int
+     */
+    public function getAgeRating ()
+    {
+        $cert = null;
+        try {
+            $ratingContainer = $this->dom->find('[itemprop="contentRating"]');
+
+            if (!empty($ratingContainer)) {
+                $cert = trim($ratingContainer[0]->text());
+
+                if (empty($cert)) {
+                    $cert = trim($ratingContainer[0]->attr("content"));
+                }
+            }
+        } catch (\Exception $e) {
+        }
+
+        if (!is_numeric($cert))
+        {
+            // Based on
+            // https://www.esrb.org/ratings/ratings_guide.aspx
+            // https://en.wikipedia.org/wiki/Motion_Picture_Association_of_America_film_rating_system
+            switch ($cert)
+            {
+                case "G":
+                case "E":
+                case "EC":
+                    $cert = 1;
+                    break;
+                case "E+10":
+                case "E10+":
+                    $cert = 10;
+                    break;
+                case "T":
+                case "PG":
+                case "PG-13":
+                    $cert = 13;
+                    break;
+                case "R":
+                case "M":
+                    $cert = 17;
+                    break;
+                default:
+                    $cert = 18;
+                    break;
+            }
+        }
+
+        return (int)$cert;
+    }
     
     /**
      * Returns the "also known as" name.
@@ -748,7 +804,7 @@ class IMDB
                         // Hispano Foxfilms S.A.E. (2009) (Spain) (theatrical) => (2009) (Spain) (theatrical)
                         $remainingText = str_replace($basicData["name"], "", $company->text());
 
-                        preg_match("/\(([0-9]{4})\) \(([A-Za-z0-9_.]+)\) \((?:theatrical|TV)\)/", $remainingText, $matches);
+                        preg_match("/\(([0-9]{4})-?\) \(([A-Za-z0-9_.]+)\) \((?:theatrical|TV)\)/", $remainingText, $matches);
 
                         if (!empty($matches)) {
                             $basicData["year"] = (int)$matches[1];
