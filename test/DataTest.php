@@ -12,6 +12,7 @@ class DataTest extends PHPUnit_Framework_TestCase
     protected $optionalFields = [
         'seasons' => ':int',
         'description' => ':string',
+        'age_rating' => ':int',
         'runtime' => ':int',
         'genre' => [
             ':string'
@@ -138,6 +139,7 @@ class DataTest extends PHPUnit_Framework_TestCase
             'type' => $IMDB->getType(),
             'seasons' => $IMDB->getSeasons(),
             'genre' => $IMDB->getGenre(),
+            'age_rating' => $IMDB->getAgeRating(),
             'runtime' => $IMDB->getRuntime(),
             'year' => $IMDB->getYear(),
             'title' => $IMDB->getTitle(),
