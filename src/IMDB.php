@@ -830,6 +830,15 @@ class IMDB
         $persons = $content->find(".simpleCreditsTable tbody");
 
         $crew = [];
+        
+        // skip useless h4s, (DiDom doesnt have :not pseudo class, so we make a foreach)
+        foreach ($titles as $pos => $h4)
+        {
+            if ($h4->hasAttribute("id") || $h4->hasAttribute("name")) {
+                unset($titles[$pos]);
+            }
+        }
+        $titles = array_values($titles);
 
         foreach ($titles as $pos => $h4)
         {
@@ -925,6 +934,10 @@ class IMDB
             }
 
             $regex = "/name\/nm(\d+)\/(?:.*)/";
+            
+            if (!isset($persons[$pos])) {
+                continue;
+            }
 
             foreach ($persons[$pos]->find("a") as $person)
             {
