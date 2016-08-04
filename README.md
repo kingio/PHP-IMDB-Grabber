@@ -26,6 +26,10 @@ Or:
 
 # Changelog
 
+## [8.3.1] - 2016-08-04
+### Fixed
+getCastCredits() fixes
+
 ## [8.3.0] - 2016-08-03
 ### Added
 Added getAgeRating() method
