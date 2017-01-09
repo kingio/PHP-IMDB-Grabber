@@ -662,12 +662,12 @@ class IMDB
                         break;
                     }
                     $arrChar[1][$i] = trim(preg_replace('~\((.*)\)~Ui', '', $arrChar[1][$i]));
-                    preg_match_all('~<a href="/character/ch(\d+)/">(.*)</a>~Ui', $arrChar[1][$i], $arrMatches);
-                    if (isset($arrMatches[1][0]) && isset($arrMatches[2][0])) {
+                    preg_match_all('~(.*)<a href="/character/ch(\d+)/(\?ref_=(\w+))?"(\s*)>(.*)</a>(.*)~Ui', $arrChar[1][$i], $arrMatches);
+                    if (isset($arrMatches[1][0]) && isset($arrMatches[6][0])) {
                         $arrReturn[] = array(
                             'name' => trim($strName),
                             'imdb' => $arrReturned[1][$i],
-                            'role' => trim($arrMatches[2][0])
+                            'role' => trim($arrMatches[6][0])
                         );
                     } else {
                         if ($arrChar[1][$i]) {
