@@ -733,8 +733,8 @@ class IMDB
 
         if ($this->isReady) {
             $arrReturned = $this->matchRegex($this->_strSource, IMDB::IMDB_COUNTRY);
-            if (count($arrReturned[2])) {
-                foreach ($arrReturned[2] as $strName) {
+            if (count($arrReturned[3])) {
+                foreach ($arrReturned[3] as $strName) {
                     $arrReturn[] = trim($strName);
                 }
             }
