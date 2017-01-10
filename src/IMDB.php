@@ -30,7 +30,7 @@ class IMDB
     const IMDB_AKA = '~<h4 class="inline">Also Known As:<\/h4>(?:\s*)(.*)<span~Ui';
     const IMDB_CAST = '~itemprop="actor"(?:.*)><a href="/name/nm(\d+)/(?:.*)"[ ]?itemprop=\'url\'> <span class="itemprop" itemprop="name">(.*)</span>~Ui';
     const IMDB_CHAR = '~<td class="character">\s+<div>(.*)</div>\s+</td~Ui';
-    const IMDB_COUNTRY = '~href="/country/(\w+)\?(?:.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
+    const IMDB_COUNTRY = '~<a href="/search/title\?(.*)country_of_origin=(.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
     
 
     const IMDB_COMPANY      = '~Production Co:</h4>(.*)</div>~Ui';
@@ -43,7 +43,7 @@ class IMDB
     const IMDB_GENRE        = '~href="/genre/(.*)(?:\?.*)"(?:\s+|)>(.*)</a>~Ui';
 
     const IMDB_ID = '~((?:tt\d{6,})|(?:itle\?\d{6,}))~';
-    const IMDB_LANGUAGES = '~<a href="\/language\/(\w+)(\"|\?).*\n?.*>(\w+)<\/a~Ui';
+    const IMDB_LANGUAGES = '~<a href="/search/title?(.*)primary_language=(.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
     const IMDB_LOCATION = '~href="\/search\/title\?locations=(.*)">(.*)<\/a>~Ui';
 
     const IMDB_NAME = '~href="/name/nm(\d+?)[/]?(?:.*)"[ ]?itemprop=\'(?:\w+)\'><span class="itemprop" itemprop="name">(.*)</span>~Ui';
