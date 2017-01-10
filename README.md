@@ -26,6 +26,10 @@ Or:
 
 # Changelog
 
+## [8.3.2] - 2017-10-01
+### Fixed
+Fix extract values from new Cast links
+
 ## [8.3.1] - 2016-08-04
 ### Fixed
 getCastCredits() fixes
