@@ -30,7 +30,7 @@ class IMDB
     const IMDB_AKA = '~<h4 class="inline">Also Known As:<\/h4>(?:\s*)(.*)<span~Ui';
     const IMDB_CAST = '~itemprop="actor"(?:.*)><a href="/name/nm(\d+)/(?:.*)"[ ]?itemprop=\'url\'> <span class="itemprop" itemprop="name">(.*)</span>~Ui';
     const IMDB_CHAR = '~<td class="character">\s+<div>(.*)</div>\s+</td~Ui';
-    const IMDB_COUNTRY = '~href="/country/(\w+)\?(?:.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
+    const IMDB_COUNTRY = '~<a href="/search/title\?(.*)country_of_origin=(.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
     
 
     const IMDB_COMPANY      = '~Production Co:</h4>(.*)</div>~Ui';
@@ -43,7 +43,7 @@ class IMDB
     const IMDB_GENRE        = '~href="/genre/(.*)(?:\?.*)"(?:\s+|)>(.*)</a>~Ui';
 
     const IMDB_ID = '~((?:tt\d{6,})|(?:itle\?\d{6,}))~';
-    const IMDB_LANGUAGES = '~<a href="\/language\/(\w+)(\"|\?).*\n?.*>(\w+)<\/a~Ui';
+    const IMDB_LANGUAGES = '~<a href="/search/title?(.*)primary_language=(.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
     const IMDB_LOCATION = '~href="\/search\/title\?locations=(.*)">(.*)<\/a>~Ui';
 
     const IMDB_NAME = '~href="/name/nm(\d+?)[/]?(?:.*)"[ ]?itemprop=\'(?:\w+)\'><span class="itemprop" itemprop="name">(.*)</span>~Ui';
@@ -662,12 +662,12 @@ class IMDB
                         break;
                     }
                     $arrChar[1][$i] = trim(preg_replace('~\((.*)\)~Ui', '', $arrChar[1][$i]));
-                    preg_match_all('~<a href="/character/ch(\d+)/">(.*)</a>~Ui', $arrChar[1][$i], $arrMatches);
-                    if (isset($arrMatches[1][0]) && isset($arrMatches[2][0])) {
+                    preg_match_all('~(.*)<a href="/character/ch(\d+)/(\?ref_=(\w+))?"(\s*)>(.*)</a>(.*)~Ui', $arrChar[1][$i], $arrMatches);
+                    if (isset($arrMatches[1][0]) && isset($arrMatches[6][0])) {
                         $arrReturn[] = array(
                             'name' => trim($strName),
                             'imdb' => $arrReturned[1][$i],
-                            'role' => trim($arrMatches[2][0])
+                            'role' => trim($arrMatches[6][0])
                         );
                     } else {
                         if ($arrChar[1][$i]) {
@@ -733,8 +733,8 @@ class IMDB
 
         if ($this->isReady) {
             $arrReturned = $this->matchRegex($this->_strSource, IMDB::IMDB_COUNTRY);
-            if (count($arrReturned[2])) {
-                foreach ($arrReturned[2] as $strName) {
+            if (count($arrReturned[3])) {
+                foreach ($arrReturned[3] as $strName) {
                     $arrReturn[] = trim($strName);
                 }
             }
