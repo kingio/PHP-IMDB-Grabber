@@ -26,6 +26,10 @@ Or:
 
 # Changelog
 
+## [8.3.3] - 2017-11-01
+### Fixed
+Fix posters and cache folders permissions
+
 ## [8.3.2] - 2017-10-01
 ### Fixed
 Fix extract values from new Cast links
