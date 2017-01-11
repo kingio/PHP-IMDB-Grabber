@@ -119,11 +119,14 @@ class IMDB
             $this->_strRoot = dirname(__FILE__);
         }
         // Posters and cache directory existant?
-        if (!is_writable($this->_strRoot . '/posters/') && !mkdir($this->_strRoot . '/posters/')) {
-            throw new IMDBException($this->_strRoot . '/posters/ is not writable!');
-        }
-        if (!is_writable($this->_strRoot . '/cache/') && !mkdir($this->_strRoot . '/cache/')) {
-            throw new IMDBException($this->_strRoot . '/cache/ is not writable!');
+        foreach (['posters', 'cache'] as $dir) {
+            $workingDir = $this->_strRoot . "/{$dir}/";
+            if (!file_exists($workingDir) && !mkdir($workingDir)){
+                throw new IMDBException("{$workingDir} not exist and can't create it!");
+            }
+            if (!is_writable($workingDir) && !chmod($workingDir, 0777)) {
+                throw new IMDBException("{$workingDir} is not writable!");
+            }
         }
         // cURL.
         if (!function_exists('curl_init')) {
