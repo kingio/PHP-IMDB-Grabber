@@ -106,6 +106,14 @@ class IMDB
 		'tv_show' => "TV Series",
 		'movie' => "Movie"
 	];
+	
+	public function getCacheFolder () {
+		return $this->_strRoot . "/imdb_cache/";
+	}
+
+	public function getPosterFolder () {
+		return $this->_strRoot . "/imdb_posters/";
+	}
 
     /**
      * IMDB constructor.
@@ -116,11 +124,10 @@ class IMDB
     public function __construct($strSearch, $intCache = 1440)
     {
         if (!$this->_strRoot) {
-            $this->_strRoot = dirname(__FILE__);
+            $this->_strRoot = sys_get_temp_dir();
         }
         // Posters and cache directory existant?
-        foreach (['posters', 'cache'] as $dir) {
-            $workingDir = $this->_strRoot . "/{$dir}/";
+        foreach ([$this->getCacheFolder(), $this->getPosterFolder()] as $workingDir) {
             if (!file_exists($workingDir) && !mkdir($workingDir)){
                 throw new IMDBException("{$workingDir} not exist and can't create it!");
             }
@@ -272,7 +279,7 @@ class IMDB
             $bolFound      = true;
             
             // Check for cached redirects of this search.
-            $fRedirect = @file_get_contents($this->_strRoot . '/cache/' . md5($this->_strUrl) . '.redir');
+            $fRedirect = @file_get_contents($this->getCacheFolder() . md5($this->_strUrl) . '.redir');
             if ($fRedirect) {
                 if (IMDB::IMDB_DEBUG) {
                     echo '<b>- Found an old redirect:</b> ' . $fRedirect . '<br>';
@@ -285,7 +292,7 @@ class IMDB
         }
         
         // Check if there is a cache we can use.
-        $fCache = $this->_strRoot . '/cache/' . md5($this->_strId) . '.cache';
+        $fCache = $this->getCacheFolder() . md5($this->_strId) . '.cache';
         if (file_exists($fCache)) {
             $bolUseCache = true;
             $intChanged  = filemtime($fCache);
@@ -333,7 +340,7 @@ class IMDB
             }
             
             // Check if there is a redirect given (IMDb sometimes does not return 301 for this...).
-            $fRedirect = $this->_strRoot . '/cache/' . md5($this->_strUrl) . '.redir';
+            $fRedirect = $this->getCacheFolder() . md5($this->_strUrl) . '.redir';
             if ($strMatch = $this->matchRegex($strOutput, IMDB::IMDB_REDIRECT, 1)) {
                 $arrExplode = explode('?fr=', $strMatch);
                 $strMatch   = ($arrExplode[0] ? $arrExplode[0] : $strMatch);
@@ -562,7 +569,7 @@ class IMDB
     }
 
     protected function getCachedReleasesFileName() {
-        return $this->_strRoot . '/cache/' . md5($this->_strId) . '.releases';
+        return $this->getCacheFolder() . md5($this->_strId) . '.releases';
     }
 
     protected function getCachedReleases() {
@@ -591,7 +598,7 @@ class IMDB
     }
 
     protected function getCachedAkasFileName() {
-        return $this->_strRoot . '/cache/' . md5($this->_strId) . '.akas';
+        return $this->getCacheFolder() . md5($this->_strId) . '.akas';
     }
 
     protected function getCachedAkas() {
