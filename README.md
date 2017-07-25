@@ -27,7 +27,7 @@ Or:
 # Changelog
 
 ## [8.4.0] - 2017-11-01
-### Improvement
+### Changed
 Use the system /tmp folder
 
 ## [8.3.3] - 2017-11-01
