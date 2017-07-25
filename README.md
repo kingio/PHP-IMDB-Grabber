@@ -26,7 +26,7 @@ Or:
 
 # Changelog
 
-## [8.4.0] - 2017-11-01
+## [8.4.0] - 2017-25-07
 ### Changed
 Use the system /tmp folder
 
