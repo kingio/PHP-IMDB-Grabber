@@ -59,11 +59,13 @@ class IMDB
 
     const IMDB_SEARCH = '~<td class="result_text"> <a href="\/title\/(tt\d{6,})\/(?:.*)"(?:\s*)>(?:.*)<\/a>~Ui';
     const IMDB_SEASONS = '~(?:episodes\?season=(\d+))~Ui';
+    const IMDB_SEASON_DROPDOWN = '~bySeason(.*)<\/select>~sU';
+    const IMDB_SEASON_VALUES = '~value=\"(\d+)\">~';
 
     const IMDB_TITLE = '~meta name="title" content="(.*)(\s\(.*)?"~Ui';
     const IMDB_TITLE_ORIG    = '~<span class="title-extra" itemprop="name">(\s+)?"(.*)"~Uis';
 
-    const IMDB_URL = '~http://(?:.*\.|.*)imdb.com/(?:t|T)itle(?:\?|/)(..\d+)~i';
+    const IMDB_URL = '~https?://(?:.*\.|.*)imdb.com/(?:t|T)itle(?:\?|/)(..\d+)~i';
     
 
     const IMDB_YEAR         = '~<title>.*\s\(.*(\d{4}).*<\/title>~Ui';
@@ -246,7 +248,7 @@ class IMDB
         // To due people complaining about broken functions while they're
         // using old versions. Feel free to remove this.
         if ($strSearch == '##REMOTEDEBUG##') {
-            $strSearch = 'http://www.imdb.com/title/tt1022603/';
+            $strSearch = 'https://www.imdb.com/title/tt1022603/';
             echo '<pre>Running PHP-IMDB-Grabber v' . IMDB::IMDB_VERSION . '.</pre>';
         }
         
@@ -259,7 +261,7 @@ class IMDB
         // Check if we found an ID ...
         if ($strId) {
             $this->_strId  = preg_replace('~[\D]~', '', $strId);
-            $this->_strUrl = 'http://www.imdb.com/title/tt' . $this->_strId . '/';
+            $this->_strUrl = 'https://www.imdb.com/title/tt' . $this->_strId . '/';
             $bolFound      = false;
             $this->isReady = true;
         }
@@ -275,7 +277,7 @@ class IMDB
                 $strSearchFor = 'tt&ttype=ep&ref_=fn_ep';
             }
             
-            $this->_strUrl = 'http://www.imdb.com/find?s=' . $strSearchFor . '&q=' . str_replace(' ', '+', $strSearch);
+            $this->_strUrl = 'https://www.imdb.com/find?s=' . $strSearchFor . '&q=' . str_replace(' ', '+', $strSearch);
             $bolFound      = true;
             
             // Check for cached redirects of this search.
@@ -290,7 +292,7 @@ class IMDB
                 $bolFound      = false;
             }
         }
-        
+
         // Check if there is a cache we can use.
         $fCache = $this->getCacheFolder() . md5($this->_strId) . '.cache';
         if (file_exists($fCache)) {
@@ -355,7 +357,7 @@ class IMDB
             }
             // Check if any of the search regexes is matching.
             elseif ($strMatch = $this->matchRegex($strOutput, IMDB::IMDB_SEARCH, 1)) {
-                $strMatch = 'http://www.imdb.com/title/tt' . $strMatch . '/';
+                $strMatch = 'https://www.imdb.com/title/tt' . $strMatch . '/';
                 if (IMDB::IMDB_DEBUG) {
                     echo '<b>- Using the first search result:</b> ' . $strMatch . '<br>';
                     echo '<b>- Saved a new redirect:</b> ' . $fRedirect . '<br>';
@@ -519,7 +521,7 @@ class IMDB
         if ($this->_strReleasesPageContent) return $this->_strReleasesPageContent;
 
         if ($this->isReady) {
-            $page = sprintf('http://www.imdb.com/title/tt%s/releaseinfo', $this->_strId);
+            $page = sprintf('https://www.imdb.com/title/tt%s/releaseinfo', $this->_strId);
             $this->_strReleasesPageContent = $this->doCurl($page, false);
 
             return $this->_strReleasesPageContent;
@@ -1117,6 +1119,46 @@ class IMDB
     }
 
     /**
+     * Returns all episodes from a TV Show
+     *
+     * @return array List of episodes
+     */
+    public function getEpisodes()
+    {
+        $episodes = [];
+        if ($this->isReady) {
+            if ($seasons = self::getSeasons() > 0) {
+                $arrInfo   = $this->doCurl($this->_strUrl . 'episodes');
+                $seasons = $this->getSeasonNumbers($arrInfo['contents']);
+                foreach ($seasons as $season) {
+                    $seasonInfo = $this->doCurl($this->_strUrl . 'episodes' . "/_ajax?season=" . $season);
+                    $doc = new Document($seasonInfo['contents']);
+                    foreach ($doc->find(".list_item") as $ep) {
+                        $plot = trim($ep->find("[itemprop='description']")[0]->text());
+                        $episodes[] = [
+                            "title" => trim($ep->find("[itemprop='name']")[0]->text()),
+                            "plot" => strpos($plot, "Know what this is about") === false ? $plot : '',
+                            "season" => (int)$season,
+                            "num" => (int)$ep->find("[itemprop='episodeNumber']")[0]->attr("content"),
+                            "date" => date('Y-m-d', strtotime($ep->find(".airdate")[0]->text())),
+                        ];
+                    }
+                }
+            }
+        }
+        return $episodes;
+    }
+
+    private function getSeasonNumbers($html) {
+        $seasonDropDown = $this->matchRegex($html, self::IMDB_SEASON_DROPDOWN, 1);
+        if (isset($seasonDropDown)) {
+            $seasons = $this->matchRegex($seasonDropDown, self::IMDB_SEASON_VALUES);
+            return isset($seasons[1]) && count($seasons[1]) > 0 ? $seasons[1] : [];
+        }
+        return [];
+    }
+
+    /**
      *
      * @return string The title of the movie or $sNotFound.
      * @throws IMDBException
@@ -1203,7 +1245,7 @@ class IMDB
             return $this->_strCreditsSource;
         }
 
-        $arrInfo = $this->doCurl('http://www.imdb.com/title/tt'.$this->_strId.'/fullcredits', false);
+        $arrInfo = $this->doCurl('https://www.imdb.com/title/tt'.$this->_strId.'/fullcredits', false);
         return $this->_strCreditsSource = $arrInfo['contents'];
     }
 
