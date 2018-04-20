@@ -154,6 +154,7 @@ class DataTest extends PHPUnit_Framework_TestCase
             'released' => $IMDB->isReleased(),
             'releases' => $IMDB->getReleases(),
             'release_date' => $IMDB->getReleaseDate(),
+            'episodes' => $IMDB->getEpisodes()
         ];
     }
 
