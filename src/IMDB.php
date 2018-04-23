@@ -1136,6 +1136,9 @@ class IMDB
                     foreach ($doc->find(".list_item") as $ep) {
                         $plot = trim($ep->find("[itemprop='description']")[0]->text());
                         $date = trim($ep->find(".airdate")[0]->text());
+                        if (preg_match("/\d+ .+ \d+/", $date) === 0) {
+                            $date = "";
+                        }
                         $episodes[] = [
                             "title" => trim($ep->find("[itemprop='name']")[0]->text()),
                             "plot" => strpos($plot, "Know what this is about") === false ? $plot : '',
