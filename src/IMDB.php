@@ -1135,12 +1135,13 @@ class IMDB
                     $doc = new Document($seasonInfo['contents']);
                     foreach ($doc->find(".list_item") as $ep) {
                         $plot = trim($ep->find("[itemprop='description']")[0]->text());
+                        $date = trim($ep->find(".airdate")[0]->text());
                         $episodes[] = [
                             "title" => trim($ep->find("[itemprop='name']")[0]->text()),
                             "plot" => strpos($plot, "Know what this is about") === false ? $plot : '',
                             "season" => (int)$season,
                             "num" => (int)$ep->find("[itemprop='episodeNumber']")[0]->attr("content"),
-                            "date" => date('Y-m-d', strtotime($ep->find(".airdate")[0]->text())),
+                            "date" => isset($date) && !empty($date) ? date('Y-m-d', strtotime($date)) : null
                         ];
                     }
                 }
