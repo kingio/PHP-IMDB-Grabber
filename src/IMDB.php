@@ -663,42 +663,30 @@ class IMDB
     public function getCastAndCharacter($intLimit = 20)
     {
         $arrReturn = $this->arrNotFound;
-
-        if ($this->isReady) {
-            $arrReturned = $this->matchRegex($this->_strSource, IMDB::IMDB_CAST);
-            $arrChar     = $this->matchRegex($this->_strSource, IMDB::IMDB_CHAR);
-
-            if (count($arrReturned[2])) {
-                foreach ($arrReturned[2] as $i => $strName) {
-                    if ($i >= $intLimit) {
-                        break;
-                    }
-                    $arrChar[1][$i] = trim(preg_replace('~\((.*)\)~Ui', '', $arrChar[1][$i]));
-                    preg_match_all('~(.*)<a href="/character/ch(\d+)/(\?ref_=(\w+))?"(\s*)>(.*)</a>(.*)~Ui', $arrChar[1][$i], $arrMatches);
-                    if (isset($arrMatches[1][0]) && isset($arrMatches[6][0])) {
-                        $arrReturn[] = array(
-                            'name' => trim($strName),
-                            'imdb' => $arrReturned[1][$i],
-                            'role' => trim($arrMatches[6][0])
-                        );
-                    } else {
-                        if ($arrChar[1][$i]) {
-                            $role        = preg_replace("/&#?[a-z0-9]{2,8};/i", "", $arrChar[1][$i]);
-                            $arrReturn[] = array(
-                                'name' => trim($strName),
-                                'imdb' => $arrReturned[1][$i],
-                                'role' => trim(strip_tags($role))
-                            );
-                        } else {
-                            $arrReturn[] = array(
-                                'name' => trim($strName),
-                                'imdb' => $arrReturned[1][$i],
-                                'role' => '-'
-                            );
-                        }
-                    }
-                }
+        $actors = $this->dom->find("[itemprop='actor']");
+        $roles = $this->dom->find(".character");
+        foreach ($actors as $i => $actor) {
+            $name = trim($actor->text());
+            $imdb = null;
+            $role = $roles[$i]->text();
+            $role = trim(preg_replace(['/^\p{Z}+|\p{Z}+$/u', '/\d+ episodes.+/', '/\/ \.\.\./', '/\(([^\)]+)\)/'], '', $role));
+            if (empty($role)) {
+                $role = '-';
             }
+
+            try {
+                $actorImdb = $actor->find('a')[0]->attr("href");
+                if (preg_match('/nm(\d+)/', $actorImdb, $matches)) {
+                    $imdb = $matches[1];
+                }
+            } catch(\Exception $e) {
+                // Avoid crashing
+            }
+            $arrReturn[] = [
+                'name' => $name,
+                'imdb' => $imdb,
+                'role' => $role
+            ];
         }
 
         return $arrReturn;
