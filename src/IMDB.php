@@ -68,7 +68,7 @@ class IMDB
     const IMDB_URL = '~https?://(?:.*\.|.*)imdb.com/(?:t|T)itle(?:\?|/)(..\d+)~i';
     
 
-    const IMDB_YEAR         = '~<title>.*\s\(.*(\d{4}).*<\/title>~Ui';
+    const IMDB_YEAR         = '~<title>.*\s\(.*(\d{4}).*IMDb<\/title>~Ui';
 
     const IMDB_WRITER = '~(?:Writer|Writers):</h4>(.*)</div>~Ui';
     const IMDB_WRITER_FULLCREDITS = '~Series Writing Credits(.*)<h4~Uis';
