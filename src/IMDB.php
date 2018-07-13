@@ -1286,8 +1286,9 @@ class IMDB
                     $strReturn = str_replace("&nbsp;-&nbsp;", '', $strReturn);
                     $strReturn = str_replace("&nbsp;", '', $strReturn);
                     $type = trim($strReturn, " ");
+                    $isTVSpecial = preg_match('/releaseinfo.+>TV Special \d+/', $this->_strSource);
 
-                    return (empty($type)) ? "Movie" : $this->typeMap[$type];
+                    return (empty($type) || $isTVSpecial) ? "Movie" : $this->typeMap[$type];
                 }
             }
 
