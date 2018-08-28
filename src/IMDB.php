@@ -55,7 +55,7 @@ class IMDB
     const IMDB_REDIRECT = '~Location:\s(.*)~';
     const IMDB_RELEASE_DATE = '~Release Date:</h4>(.*)(?:<span|<\/div>)~Ui';
     
-    const IMDB_RUNTIME      = '~Runtime:</h4>\s+<time itemprop="duration" datetime="(?:.*)">(.*)</time>~Uis';
+    const IMDB_RUNTIME      = '~Runtime:</h4>\s+<time datetime="(?:.*)">(.*)</time>~Uis';
 
     const IMDB_SEARCH = '~<td class="result_text"> <a href="\/title\/(tt\d{6,})\/(?:.*)"(?:\s*)>(?:.*)<\/a>~Ui';
     const IMDB_SEASONS = '~(?:episodes\?season=(\d+))~Ui';
@@ -663,30 +663,36 @@ class IMDB
     public function getCastAndCharacter($intLimit = 20)
     {
         $arrReturn = $this->arrNotFound;
-        $actors = $this->dom->find("[itemprop='actor']");
-        $roles = $this->dom->find(".character");
+        $content = new Document($this->getCredits());
+        $actors = $content->find(".primary_photo");
+        $roles = $content->find(".character");
+        $textCleaner = ['/^\p{Z}+|\p{Z}+$/u', '/\d+ episode[s]?.+/', '/\/ \.\.\./', '/\(([^\)]+)\)/'];
         foreach ($actors as $i => $actor) {
-            $name = trim($actor->text());
-            $imdb = null;
-            $role = $roles[$i]->text();
-            $role = trim(preg_replace(['/^\p{Z}+|\p{Z}+$/u', '/\d+ episodes.+/', '/\/ \.\.\./', '/\(([^\)]+)\)/'], '', $role));
-            if (empty($role)) {
-                $role = '-';
-            }
-
             try {
+                $name = $actor->find('a img')[0]->attr('title');
+                $name = trim(preg_replace($textCleaner, '', $name));
+                $role = $roles[$i]->text();
+                $role = trim(preg_replace($textCleaner, '', $role));
+                $role = trim(preg_replace($textCleaner, '', $role));
+                if (empty($role)) {
+                    $role = '-';
+                }
+
+                $imdb = null;
                 $actorImdb = $actor->find('a')[0]->attr("href");
                 if (preg_match('/nm(\d+)/', $actorImdb, $matches)) {
                     $imdb = $matches[1];
                 }
+
+                $arrReturn[] = [
+                    'name' => $name,
+                    'imdb' => $imdb,
+                    'role' => $role
+                ];
+
             } catch(\Exception $e) {
                 // Avoid crashing
             }
-            $arrReturn[] = [
-                'name' => $name,
-                'imdb' => $imdb,
-                'role' => $role
-            ];
         }
 
         return $arrReturn;
