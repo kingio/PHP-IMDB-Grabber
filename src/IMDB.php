@@ -30,20 +30,20 @@ class IMDB
     const IMDB_AKA = '~<h4 class="inline">Also Known As:<\/h4>(?:\s*)(.*)<span~Ui';
     const IMDB_CAST = '~itemprop="actor"(?:.*)><a href="/name/nm(\d+)/(?:.*)"[ ]?itemprop=\'url\'> <span class="itemprop" itemprop="name">(.*)</span>~Ui';
     const IMDB_CHAR = '~<td class="character">\s+<div>(.*)</div>\s+</td~Ui';
-    const IMDB_COUNTRY = '~<a href="/search/title\?(.*)country_of_origin=(.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
+    const IMDB_COUNTRY = '~<a href="/search/title\?(.*)country_of_origin=(.*)>(.*)</a>~Ui';
     
 
     const IMDB_COMPANY      = '~Production Co:</h4>(.*)</div>~Ui';
-    const IMDB_COMPANY_NAME = '~href="/company/co(\d+)(?:\?.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
+    const IMDB_COMPANY_NAME = '~href="/company/co(\d+)(?:\?.*)>(.*)</a>~Ui';
 
-    const IMDB_DESCRIPTION = '~<div class="summary_text" itemprop="description">(.*)(?:<a|<\/div>)~Ui';
+    const IMDB_DESCRIPTION = '~<div class="summary_text">(.*)(?:<a|<\/div>)~Ui';
     const IMDB_DIRECTOR = '~(?:Director|Directors):</h4>(.*)</div>~Ui';
     const IMDB_DIRECTOR_FULLCREDITS = '~Directed by(.*)<h4~Uis';
 
     const IMDB_GENRE        = '~href="/genre/(.*)(?:\?.*)"(?:\s+|)>(.*)</a>~Ui';
 
     const IMDB_ID = '~((?:tt\d{6,})|(?:itle\?\d{6,}))~';
-    const IMDB_LANGUAGES = '~<a href="/search/title?(.*)primary_language=(.*)"[ ]?itemprop=\'url\'>(.*)</a>~Ui';
+    const IMDB_LANGUAGES = '~<a href="/search/title?(.*)primary_language=(.*)>(.*)</a>~Ui';
     const IMDB_LOCATION = '~href="\/search\/title\?locations=(.*)">(.*)<\/a>~Ui';
 
     const IMDB_NAME = '~href="/name/nm(\d+?)[/]?(?:.*)"[ ]?itemprop=\'(?:\w+)\'><span class="itemprop" itemprop="name">(.*)</span>~Ui';
@@ -71,7 +71,7 @@ class IMDB
     const IMDB_YEAR         = '~<title>.*\s\(.*(\d{4}).*IMDb<\/title>~Ui';
 
     const IMDB_WRITER = '~(?:Writer|Writers):</h4>(.*)</div>~Ui';
-    const IMDB_WRITER_FULLCREDITS = '~Series Writing Credits(.*)<h4~Uis';
+    const IMDB_WRITER_FULLCREDITS = '~[Series ]?Writing Credits(.*)<h4~Uis';
 
     const IMDB_TYPE = '~property=\'og:type\' content="video.(.*)"~Ui';
     const IMDB_IS_RELEASED = '~<div class="star-box giga-star">(.*)</div>~Ui';
@@ -666,7 +666,7 @@ class IMDB
         $content = new Document($this->getCredits());
         $actors = $content->find(".primary_photo");
         $roles = $content->find(".character");
-        $textCleaner = ['/^\p{Z}+|\p{Z}+$/u', '/\d+ episode[s]?.+/', '/\/ \.\.\./', '/\(([^\)]+)\)/'];
+        $textCleaner = ['/^\p{Z}+|\p{Z}+$/u', '/\d+ episode[s]?.+/', '/\/ \.\.\./', '/\(([^\)]+)\)/', '/unknown episode[s]?/'];
         foreach ($actors as $i => $actor) {
             try {
                 $name = $actor->find('a img')[0]->attr('title');
@@ -849,6 +849,7 @@ class IMDB
         foreach ($titles as $pos => $h4)
         {
             $title = trim($h4->text(), " \t\n\r\0\x0B\xC2\xA0");
+            $title = str_replace('Series ', '', $title);
 
             switch ($title)
             {
