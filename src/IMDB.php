@@ -56,6 +56,7 @@ class IMDB
     const IMDB_RELEASE_DATE = '~Release Date:</h4>(.*)(?:<span|<\/div>)~Ui';
     
     const IMDB_RUNTIME      = '~Runtime:</h4>\s+<time datetime="(?:.*)">(.*)</time>~Uis';
+    const IMDB_RUNTIME_FALLBACK      = '~<time datetime=\"PT(\d+)M\">~Uis';
 
     const IMDB_SEARCH = '~<td class="result_text"> <a href="\/title\/(tt\d{6,})\/(?:.*)"(?:\s*)>(?:.*)<\/a>~Ui';
     const IMDB_SEASONS = '~(?:episodes\?season=(\d+))~Ui';
@@ -1081,6 +1082,8 @@ class IMDB
     {
         if ($this->isReady) {
             if ($strReturn = $this->matchRegex($this->_strSource, IMDB::IMDB_RUNTIME, 1)) {
+                return intval($strReturn);
+            } else if ($strReturn = $this->matchRegex($this->_strSource, IMDB::IMDB_RUNTIME_FALLBACK, 1)) {
                 return intval($strReturn);
             }
         }
