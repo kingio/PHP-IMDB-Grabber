@@ -40,7 +40,7 @@ class IMDB
     const IMDB_DIRECTOR = '~(?:Director|Directors):</h4>(.*)</div>~Ui';
     const IMDB_DIRECTOR_FULLCREDITS = '~Directed by(.*)<h4~Uis';
 
-    const IMDB_GENRE        = '~href="/genre/(.*)(?:\?.*)"(?:\s+|)>(.*)</a>~Ui';
+    const IMDB_GENRE        = '~href=\"\/search\/title\?genres=.+>(.+)<\/a>~Ui';
 
     const IMDB_ID = '~((?:tt\d{6,})|(?:itle\?\d{6,}))~';
     const IMDB_LANGUAGES = '~<a href="/search/title?(.*)primary_language=(.*)>(.*)</a>~Ui';
