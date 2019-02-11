@@ -633,7 +633,7 @@ class IMDB
             return $this->strNotFound;
         }
 
-        $arrReturned = $this->matchRegex($arrInfo['contents'], "~<td>(.*?)<\/td>\s+<td>(.*?)<\/td>~", 0);
+        $arrReturned = $this->matchRegex($arrInfo['contents'], "~<td class=\"aka-item__name\">(.*?)<\/td>\s+<td class=\"aka-item__title\">(.*?)<\/td>~", 0);
 
         if (isset($arrReturned[1]) && isset($arrReturned[2])) {
 
