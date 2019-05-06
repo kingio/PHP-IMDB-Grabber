@@ -11,14 +11,31 @@ It's begin used on production servers.
 
 `composer require kingio/php-imdb-grabber`
 
+# Usage
+
+```php
+<?php
+
+
+require './vendor/autoload.php';
+
+$imdbId = "https://www.imdb.com/title/tt0241527/";
+
+$imdb = new \IMDB\IMDB($imdbId);
+
+print_r($imdb->getTitle());
+```
+
 # Testing
 
 See on [Travis CI](https://travis-ci.org/kingio/PHP-IMDB-Grabber) 
 
 Or:
 
-`composer update`
-`./vendor/bin/phpunit test/DataTest.php`
+```bash
+composer update
+./vendor/bin/phpunit test/DataTest.php
+```
 
 # Changelog
 
