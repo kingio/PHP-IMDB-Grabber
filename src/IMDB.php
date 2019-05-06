@@ -107,7 +107,8 @@ class IMDB
     
     private $typeMap = [
 		'tv_show' => "TV Series",
-		'movie' => "Movie"
+		'movie' => "Movie",
+		'episode' => "TV Episode"
 	];
 	
 	public function getCacheFolder () {
