@@ -348,14 +348,17 @@ class IMDB
             if ($strMatch = $this->matchRegex($strOutput, IMDB::IMDB_REDIRECT, 1)) {
                 $arrExplode = explode('?fr=', $strMatch);
                 $strMatch   = ($arrExplode[0] ? $arrExplode[0] : $strMatch);
-                if (IMDB::IMDB_DEBUG) {
-                    echo '<b>- Saved a new redirect:</b> ' . $fRedirect . '<br>';
-                }
-                file_put_contents($fRedirect, $strMatch);
-                $this->isReady = false;
-                // Run the cURL request again with the new url.
-                IMDB::fetchUrl($strMatch);
-                return true;
+		    
+                if (filter_var($strMatch, FILTER_VALIDATE_URL)) {
+                    if (IMDB::IMDB_DEBUG) {
+                        echo '<b>- Saved a new redirect:</b> ' . $fRedirect . '<br>';
+                    }
+                    file_put_contents($fRedirect, $strMatch);
+                    $this->isReady = false;
+                    // Run the cURL request again with the new url.
+                    IMDB::fetchUrl($strMatch);
+                    return true;
+		}
             }
             // Check if any of the search regexes is matching.
             elseif ($strMatch = $this->matchRegex($strOutput, IMDB::IMDB_SEARCH, 1)) {
